@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# Models (Too large for git)
+models/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Audio temp files
+temp_*.webm
+temp_*.wav
+
+# IDE
+.vscode/
+.idea/
