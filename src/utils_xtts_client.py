@@ -5,12 +5,27 @@ import os
 class XTTSEngine:
     def __init__(self, server_url="http://127.0.0.1:8002"):
         self.server_url = server_url
+        self.current_process = None
+        self.is_stopped = False
         print("Initialized XTTS Engine (Client)")
+
+    def stop(self):
+        """Stops the current audio playback immediately."""
+        self.is_stopped = True
+        if self.current_process:
+            try:
+                self.current_process.terminate()
+                self.current_process.wait(timeout=0.5)
+            except Exception as e:
+                print(f"Error stopping audio: {e}")
+            finally:
+                self.current_process = None
 
     def speak(self, text, lang="en"):
         if not text:
             return
             
+        self.is_stopped = False
         try:
             # Map lang codes if necessary
             # XTTS supports: en, es, fr, de, it, pt, pl, tr, ru, nl, cs, ar, zh-cn, ja, ko, hu
@@ -46,16 +61,35 @@ class XTTSEngine:
                 
                 # Play streaming audio
                 # For now, it returns full wav. Stream to aplay.
-                p = subprocess.Popen(['aplay', '-q'], stdin=subprocess.PIPE)
-                for chunk in response.iter_content(chunk_size=4096):
-                    if chunk:
-                        p.stdin.write(chunk)
-                p.stdin.flush()
-                p.stdin.close()
-                p.wait()
+                self.current_process = subprocess.Popen(['aplay', '-q'], stdin=subprocess.PIPE)
+                
+                try:
+                    for chunk in response.iter_content(chunk_size=4096):
+                        if self.is_stopped:
+                            break
+                        if chunk and self.current_process and self.current_process.stdin:
+                            self.current_process.stdin.write(chunk)
+                except (BrokenPipeError, OSError):
+                    # Process likely killed by stop()
+                    pass
+                finally:
+                    if self.current_process:
+                        try:
+                            if self.current_process.stdin:
+                                self.current_process.stdin.flush()
+                                self.current_process.stdin.close()
+                            self.current_process.wait()
+                        except (BrokenPipeError, OSError):
+                            pass
+                        self.current_process = None
             
+        except requests.exceptions.RequestException as e:
+            # Only print if not manually stopped
+            if not self.is_stopped:
+                print(f"XTTS Network Error: {e}")
         except Exception as e:
-            print(f"XTTS Error: {e}")
+            if not self.is_stopped:
+                print(f"XTTS Error: {e}")
 
     def synthesize_audio(self, text, lang="en"):
         """Returns the audio bytes (wav) directly."""

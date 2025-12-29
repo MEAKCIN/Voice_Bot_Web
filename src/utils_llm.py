@@ -2,7 +2,7 @@ import requests
 import json
 
 class LLMEngine:
-    def __init__(self, model_name="qwen2.5:latest", system_prompt="You are a helpful AI assistant. IMPORTANT: DETECT the user's language. If they speak Turkish, answer ONLY in Turkish. If they speak English, answer ONLY in English. Do not mix languages. Keep answers short, natural, and conversational."):
+    def __init__(self, model_name="qwen2.5-omni", system_prompt="You are a helpful AI assistant. IMPORTANT: DETECT the user's language. If they speak Turkish, answer ONLY in Turkish. If they speak English, answer ONLY in English. Do not mix languages. Keep answers short, natural, and conversational."):
         self.model_name = model_name
         self.base_url = "http://localhost:11434/api/generate"
         self.system_prompt = system_prompt

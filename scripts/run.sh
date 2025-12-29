@@ -9,7 +9,7 @@ if ! pgrep -x "ollama" > /dev/null; then
 fi
 
 # Check if model exists
-REQUIRED_MODEL="qwen2.5:latest"
+REQUIRED_MODEL="qwen2.5-omni"
 if ! ollama list | grep -q "$REQUIRED_MODEL"; then
     echo "Pulling model $REQUIRED_MODEL..."
     ollama pull "$REQUIRED_MODEL"
@@ -26,5 +26,18 @@ fi
 SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SITE_PACKAGES/nvidia/cudnn/lib:$SITE_PACKAGES/nvidia/cublas/lib
 
-echo "Starting Voice Bot..."
-python src/bot.py
+echo "Starting Backend Server..."
+python backend/main.py &
+BACKEND_PID=$!
+
+echo "Starting Frontend..."
+npm run dev --prefix frontend &
+FRONTEND_PID=$!
+
+echo "Voice Bot Web App is running!"
+echo "Backend PID: $BACKEND_PID"
+echo "Frontend PID: $FRONTEND_PID"
+
+# Wait for processes
+trap "kill $BACKEND_PID $FRONTEND_PID; exit" SIGINT SIGTERM
+wait

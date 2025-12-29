@@ -66,12 +66,21 @@ class VoiceBot:
 
         self.tts = XTTSEngine()
         
-        self.is_listening = False
         self.speech_buffer = [] # List of numpy arrays
         self.silence_counter = 0
         self.in_speech_phase = False
         self.record_process = None
         self.session_language = None # "en" or "tr"
+        
+        # Interruption & Threading Flags
+        self.is_bot_speaking = False
+        self.bot_speaking_lock = threading.Lock()
+        self.interrupted_event = threading.Event()
+        self.response_thread = None
+        
+        # Noise Filter for Interruption
+        self.interrupt_speech_frames = 0
+        self.INTERRUPT_FRAME_THRESHOLD = 5 # ~150ms of continuous speech to trigger interrupt
 
     def select_language(self):
         print(Fore.CYAN + "Requesting Language Selection..." + Style.RESET_ALL)
@@ -167,20 +176,53 @@ class VoiceBot:
             # VAD Check
             is_speech, prob = self.vad.is_speech(audio_float32, sr=SAMPLE_RATE)
             
-            # State Machine
-            if is_speech:
-                self.in_speech_phase = True
-                self.silence_counter = 0
-                self.speech_buffer.append(audio_float32)
-            else:
-                if self.in_speech_phase:
-                    self.silence_counter += (BLOCK_SIZE / SAMPLE_RATE) * 1000 # ms
-                    self.speech_buffer.append(audio_float32) # Keep trailing silence
+            # --- INTERRUPTION LOGIC ---
+            # Check if bot is currently speaking
+            is_speaking_now = False
+            with self.bot_speaking_lock:
+                is_speaking_now = self.is_bot_speaking
+
+            if is_speaking_now:
+                # If bot is speaking, we monitor for INTERRUPTION (Barge-in)
+                if is_speech:
+                    self.interrupt_speech_frames += 1
+                else:
+                    self.interrupt_speech_frames = max(0, self.interrupt_speech_frames - 1)
+                
+                if self.interrupt_speech_frames >= self.INTERRUPT_FRAME_THRESHOLD:
+                    print(Fore.RED + "\n[Interruption Detected!] Stopping playback..." + Style.RESET_ALL)
+                    self.interrupted_event.set() # Flag the thread to stop
+                    self.tts.stop() # Kill audio immediately
                     
-                    if self.silence_counter > SILENCE_THRESHOLD_MS:
-                        # User stopped speaking
-                        self.handle_turn()
-                        self.reset_state()
+                    # We also want to capture this speech as the NEW turn
+                    # So we don't drop the interruption phrase
+                    # We start a new speech phase IMMEDIATELY
+                    self.in_speech_phase = True
+                    self.silence_counter = 0
+                    self.speech_buffer = [audio_float32] # Start buffer with current chunk
+                    self.interrupt_speech_frames = 0
+                    
+                    # Wait for thread to acknowledge? 
+                    # No, just let it die. 
+                    
+            else:
+                # --- NORMAL LISTENING LOGIC ---
+                self.interrupt_speech_frames = 0 # Reset
+                
+                if is_speech:
+                    self.in_speech_phase = True
+                    self.silence_counter = 0
+                    self.speech_buffer.append(audio_float32)
+                else:
+                    if self.in_speech_phase:
+                        self.silence_counter += (BLOCK_SIZE / SAMPLE_RATE) * 1000 # ms
+                        self.speech_buffer.append(audio_float32) # Keep trailing silence
+                        
+                        if self.silence_counter > SILENCE_THRESHOLD_MS:
+                            # User stopped speaking, valid turn
+                            self.trigger_response_thread()
+                            self.reset_state(quiet=True)
+                            print(Fore.GREEN + "\nListening..." + Style.RESET_ALL)
     
     def reset_state(self, quiet=False):
         self.in_speech_phase = False
@@ -189,41 +231,69 @@ class VoiceBot:
         if not quiet:
             print(Fore.GREEN + "\nListening..." + Style.RESET_ALL)
 
-    def handle_turn(self):
-        print(Fore.YELLOW + "\nProcessing..." + Style.RESET_ALL)
+    def trigger_response_thread(self):
+        # If a previous thread is running (unlikely if logic is correct, but possible), join it?
+        # Actually, if we just finished listening, the bot shouldn't be speaking unless something weird happened.
         
-        # 1. Prepare Audio
+        # Prepare data
         full_audio = np.concatenate(self.speech_buffer)
         
-        # 2. STT
-        print(Fore.BLUE + "Transcribing..." + Style.RESET_ALL)
-        # We can ignore detected lang here and force session lang if we want strict mode
-        user_text, detected_lang = self.stt.transcribe(full_audio)
-        
-        if not user_text.strip():
-            print("No speech detected or empty transcription.")
-            return
+        # Start Thread
+        self.response_thread = threading.Thread(target=self.handle_turn_threaded, args=(full_audio,))
+        self.response_thread.start()
 
-        print(Fore.WHITE + f"User ({self.session_language}): {user_text}" + Style.RESET_ALL)
-        
-        # 3. LLM & TTS Streaming
-        print(Fore.MAGENTA + "Bot: " + Style.RESET_ALL, end="", flush=True)
-        
-        current_sentence = ""
-        for token in self.llm.chat(user_text):
-            print(token, end="", flush=True)
-            current_sentence += token
+    def handle_turn_threaded(self, audio_data):
+        # Set Flag
+        with self.bot_speaking_lock:
+            self.is_bot_speaking = True
+        self.interrupted_event.clear()
+
+        try:
+            print(Fore.YELLOW + "\nProcessing..." + Style.RESET_ALL)
             
-            # Simple heuristic for sentence end
-            if token in [".", "!", "?", "\n"]:
+            # STT
+            print(Fore.BLUE + "Transcribing..." + Style.RESET_ALL)
+            user_text, detected_lang = self.stt.transcribe(audio_data)
+            
+            # Check interruption (early exit)
+            if self.interrupted_event.is_set(): return
+
+            if not user_text.strip():
+                print("No speech detected or empty transcription.")
+                return
+
+            print(Fore.WHITE + f"User ({self.session_language}): {user_text}" + Style.RESET_ALL)
+            
+            # LLM & TTS Streaming
+            print(Fore.MAGENTA + "Bot: " + Style.RESET_ALL, end="", flush=True)
+            
+            current_sentence = ""
+            for token in self.llm.chat(user_text):
+                # Check interruption
+                if self.interrupted_event.is_set():
+                    print(Fore.RED + " [Interrupted]" + Style.RESET_ALL)
+                    break
+
+                print(token, end="", flush=True)
+                current_sentence += token
+                
+                # Simple heuristic for sentence end
+                if token in [".", "!", "?", "\n"]:
+                    if current_sentence.strip():
+                        self.tts.speak(current_sentence, lang=self.session_language)
+                    current_sentence = ""
+            
+            # Flush remaining
+            if current_sentence.strip() and not self.interrupted_event.is_set():
                 self.tts.speak(current_sentence, lang=self.session_language)
-                current_sentence = ""
-        
-        # Flush remaining
-        if current_sentence:
-            self.tts.speak(current_sentence, lang=self.session_language)
-            
-        print() # Newline
+                
+            print() # Newline
+
+        except Exception as e:
+            print(f"Error in response thread: {e}")
+        finally:
+            with self.bot_speaking_lock:
+                self.is_bot_speaking = False
 
     def wait_for_server(self, port=8002, timeout=120):
         print(Fore.CYAN + f"Waiting for XTTS Server on port {port}..." + Style.RESET_ALL)
@@ -240,7 +310,6 @@ class VoiceBot:
         print(Fore.RED + "\nServer timed out!" + Style.RESET_ALL)
         return False 
 
-
     def cleanup_port(self, port):
         """Kills any process listening on the specified port"""
         try:
@@ -253,6 +322,17 @@ class VoiceBot:
                     os.kill(int(pid), signal.SIGKILL)
         except Exception as e:
             print(f"Error cleaning up port {port}: {e}")
+
+if __name__ == "__main__":
+    bot = VoiceBot()
+    try:
+        bot.process_loop()
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        if bot.record_process:
+            bot.record_process.terminate()
+        if hasattr(bot, 'xtts_server_process') and bot.xtts_server_process:
+            bot.xtts_server_process.terminate()
 
 if __name__ == "__main__":
     bot = VoiceBot()
