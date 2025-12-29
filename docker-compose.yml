@@ -1,0 +1,36 @@
+services:
+  voice-bot:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434/api/generate
+      - OLLAMA_HOST=http://ollama:11434
+    depends_on:
+      - ollama
+    volumes:
+      # Mount models if updated externally, though they are baked in.
+      # Prioritize local models if present?
+      # - ./models:/app/models
+      # Mount entrypoint to allow updates without rebuild
+      - ./scripts/docker-entrypoint.sh:/app/scripts/docker-entrypoint.sh
+    entrypoint: [ "/bin/bash", "/app/scripts/docker-entrypoint.sh" ]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Remove GPU reservation for general compatibility,
+    # User can uncomment for GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:

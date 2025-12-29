@@ -11,6 +11,8 @@ import subprocess
 import time
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile, File
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # Add src to path
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -218,6 +220,37 @@ async def voice_chat(
     except Exception as e:
         print(f"Voice Chat Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# --- Serve Frontend (SPA) ---
+# Determine path to frontend build
+# 1. Env override
+# 2. Local dev path relative to this file
+frontend_dist = os.getenv("FRONTEND_DIST", os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+
+if os.path.exists(frontend_dist):
+    print(f"Serving frontend from {frontend_dist}")
+    
+    # Mount assets if they exist
+    assets_path = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_path):
+        app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+        
+    # Catch-all for SPA and root files
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Check if file exists in dist (e.g., favicon.ico, robohash.png)
+        file_path = os.path.join(frontend_dist, full_path)
+        if os.path.isfile(file_path):
+             return FileResponse(file_path)
+             
+        # Otherwise serve index.html
+        index_path = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        return {"error": "Frontend not found"}
+else:
+    print(f"Frontend dist not found at {frontend_dist}. Running in API-only mode.")
 
 if __name__ == "__main__":
     import uvicorn

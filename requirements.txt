@@ -10,3 +10,5 @@ TTS
 colorama
 scipy
 pydantic
+soundfile
+aiofiles
