@@ -1,126 +1,63 @@
-import subprocess
-import requests
-import os
+import edge_tts
+import asyncio
+import io
+import wave
 
-class XTTSEngine:
-    def __init__(self, server_url="http://127.0.0.1:8002"):
-        self.server_url = server_url
-        self.current_process = None
-        self.is_stopped = False
-        print("Initialized XTTS Engine (Client)")
-
-    def stop(self):
-        """Stops the current audio playback immediately."""
-        self.is_stopped = True
-        if self.current_process:
-            try:
-                self.current_process.terminate()
-                self.current_process.wait(timeout=0.5)
-            except Exception as e:
-                print(f"Error stopping audio: {e}")
-            finally:
-                self.current_process = None
-
-    def speak(self, text, lang="en"):
-        if not text:
-            return
-            
-        self.is_stopped = False
+class EdgeTTSEngine:
+    """
+    Fast, high-quality TTS using Microsoft Edge TTS.
+    Supports Turkish and English with natural voices.
+    """
+    def __init__(self):
+        # Voice options - Edge TTS has excellent Turkish and English voices
+        self.voices = {
+            "tr": "tr-TR-AhmetNeural",   # Turkish male voice
+            "en": "en-US-GuyNeural"       # English male voice
+        }
+        print("Initialized Edge-TTS Engine")
+    
+    def synthesize_audio(self, text: str, lang: str = "en", speed: float = 1.0) -> bytes:
+        """
+        Synthesizes text to audio using edge-tts.
+        Returns WAV bytes.
+        """
+        voice = self.voices.get(lang, self.voices["en"])
+        
+        # Convert speed to rate string (e.g., +10%, -20%)
+        rate_percent = int((speed - 1.0) * 100)
+        rate_str = f"+{rate_percent}%" if rate_percent >= 0 else f"{rate_percent}%"
+        
+        # Run async synthesis
+        return asyncio.get_event_loop().run_until_complete(
+            self._synthesize_async(text, voice, rate_str)
+        )
+    
+    async def _synthesize_async(self, text: str, voice: str, rate: str) -> bytes:
+        """Async synthesis implementation."""
         try:
-            # Map lang codes if necessary
-            # XTTS supports: en, es, fr, de, it, pt, pl, tr, ru, nl, cs, ar, zh-cn, ja, ko, hu
-            # Whisper returns 'en', 'tr' etc. mostly matching.
+            communicate = edge_tts.Communicate(text, voice, rate=rate)
             
-            # Determine speaker file
-            # Default to generic speaker.wav
-            speaker_file = "speaker.wav"
+            # Collect audio chunks
+            audio_chunks = []
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    audio_chunks.append(chunk["data"])
             
-            # Use specific samples if available
-            sample_dir = os.path.join(os.getcwd(), "models/xtts_v2/samples")
-            lang_code = lang.lower()
-            if lang_code == "tr":
-                candidate = os.path.join(sample_dir, "tr_sample.wav")
-                if os.path.exists(candidate):
-                    speaker_file = candidate
-            elif lang_code == "en":
-                candidate = os.path.join(sample_dir, "en_sample.wav")
-                if os.path.exists(candidate):
-                    speaker_file = candidate
-            
-            payload = {
-                "text": text,
-                "language": lang,
-                "speaker_wav": speaker_file
-            }
-            
-            # print(f"XTTS Request ({lang}): {text[:30]}...")
-            
-            # Use requests to get audio
-            with requests.post(f"{self.server_url}/synthesize", json=payload, stream=True) as response:
-                response.raise_for_status()
+            if audio_chunks:
+                # Combine all chunks into MP3, then convert to WAV for browser compatibility
+                mp3_data = b"".join(audio_chunks)
                 
-                # Play streaming audio
-                # For now, it returns full wav. Stream to aplay.
-                self.current_process = subprocess.Popen(['aplay', '-q'], stdin=subprocess.PIPE)
-                
-                try:
-                    for chunk in response.iter_content(chunk_size=4096):
-                        if self.is_stopped:
-                            break
-                        if chunk and self.current_process and self.current_process.stdin:
-                            self.current_process.stdin.write(chunk)
-                except (BrokenPipeError, OSError):
-                    # Process likely killed by stop()
-                    pass
-                finally:
-                    if self.current_process:
-                        try:
-                            if self.current_process.stdin:
-                                self.current_process.stdin.flush()
-                                self.current_process.stdin.close()
-                            self.current_process.wait()
-                        except (BrokenPipeError, OSError):
-                            pass
-                        self.current_process = None
-            
-        except requests.exceptions.RequestException as e:
-            # Only print if not manually stopped
-            if not self.is_stopped:
-                print(f"XTTS Network Error: {e}")
-        except Exception as e:
-            if not self.is_stopped:
-                print(f"XTTS Error: {e}")
-
-    def synthesize_audio(self, text, lang="en", **kwargs):
-        """Returns the audio bytes (wav) directly."""
-        if not text:
+                # Edge-TTS returns MP3, but browser decodeAudioData prefers WAV
+                # For simplicity, returning MP3 which modern browsers can decode
+                return mp3_data
             return None
             
-        try:
-            # Determine speaker file similar to speak()
-            speaker_file = "speaker.wav"
-            sample_dir = os.path.join(os.getcwd(), "models/xtts_v2/samples")
-            lang_code = lang.lower()
-            if lang_code == "tr":
-                candidate = os.path.join(sample_dir, "tr_sample.wav")
-                if os.path.exists(candidate):
-                    speaker_file = candidate
-            elif lang_code == "en":
-                candidate = os.path.join(sample_dir, "en_sample.wav")
-                if os.path.exists(candidate):
-                    speaker_file = candidate
-            
-            payload = {
-                "text": text,
-                "language": lang,
-                "speaker_wav": speaker_file,
-                **kwargs
-            }
-            
-            with requests.post(f"{self.server_url}/synthesize", json=payload, stream=False) as response:
-                response.raise_for_status()
-                return response.content
-            
         except Exception as e:
-            print(f"XTTS Synthesis Error: {e}")
+            print(f"Edge-TTS Error: {e}")
             return None
+
+
+# Compatibility alias for existing code
+class XTTSEngine(EdgeTTSEngine):
+    """Compatibility wrapper for existing code expecting XTTSEngine."""
+    pass

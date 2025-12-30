@@ -1,30 +1,22 @@
 #!/bin/bash
 source .venv/bin/activate
 
-# Check for Ollama (Model Server)
-if ! pgrep -x "ollama" > /dev/null; then
-    echo "Starting Ollama..."
-    ollama serve &
-    sleep 5
-fi
-
-# Check if model exists
-REQUIRED_MODEL="qwen2.5"
-if ! ollama list | grep -q "$REQUIRED_MODEL"; then
-    echo "Pulling model $REQUIRED_MODEL..."
-    ollama pull "$REQUIRED_MODEL"
-fi
-
-# Check for XTTS v2 model
-XTTS_MODEL_DIR="models/xtts_v2"
-if [ ! -d "$XTTS_MODEL_DIR" ] || [ -z "$(ls -A $XTTS_MODEL_DIR)" ]; then
-    echo "Downloading XTTS model..."
-    python scripts/download_models.py
-fi
-
 # Dynamically find site-packages for GPU libs
 SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SITE_PACKAGES/nvidia/cudnn/lib:$SITE_PACKAGES/nvidia/cublas/lib
+
+# Start vLLM Server
+VLLM_MODEL="Qwen/Qwen2.5-1.5B-Instruct"
+echo "Starting vLLM Server with model $VLLM_MODEL..."
+VLLM_USE_V1=0 CUDA_VISIBLE_DEVICES=0 python -m vllm.entrypoints.openai.api_server \
+    --model "$VLLM_MODEL" \
+    --port 8001 \
+    --gpu-memory-utilization 0.3 \
+    --max-model-len 1024 \
+    --dtype float16 \
+    --enforce-eager &
+VLLM_PID=$!
+sleep 15  # Wait for vLLM to start
 
 echo "Starting Backend Server..."
 python backend/main.py &
@@ -35,9 +27,10 @@ npm run dev --prefix frontend &
 FRONTEND_PID=$!
 
 echo "Voice Bot Web App is running!"
+echo "vLLM PID: $VLLM_PID"
 echo "Backend PID: $BACKEND_PID"
 echo "Frontend PID: $FRONTEND_PID"
 
 # Wait for processes
-trap "kill $BACKEND_PID $FRONTEND_PID; exit" SIGINT SIGTERM
+trap "kill $VLLM_PID $BACKEND_PID $FRONTEND_PID; exit" SIGINT SIGTERM
 wait

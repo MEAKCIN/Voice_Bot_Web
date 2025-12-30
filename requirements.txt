@@ -12,3 +12,5 @@ scipy
 pydantic
 soundfile
 aiofiles
+vllm
+openai

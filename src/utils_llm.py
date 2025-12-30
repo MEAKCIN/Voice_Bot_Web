@@ -1,13 +1,18 @@
 import os
-import requests
-import json
+from openai import OpenAI
 
 class LLMEngine:
-    def __init__(self, model_name="qwen2.5", system_prompt="You are a helpful AI assistant. IMPORTANT: DETECT the user's language. If they speak Turkish, answer ONLY in Turkish. If they speak English, answer ONLY in English. Do not mix languages. Keep answers short, natural, and conversational."):
+    def __init__(self, model_name="Qwen/Qwen2.5-1.5B-Instruct", system_prompt="You are a helpful AI assistant. IMPORTANT: DETECT the user's language. If they speak Turkish, answer ONLY in Turkish. If they speak English, answer ONLY in English. Do not mix languages. Keep answers short, natural, and conversational."):
         self.model_name = model_name
-        self.base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/api/generate")
+        self.base_url = os.getenv("VLLM_BASE_URL", "http://localhost:8001/v1")
         self.system_prompt = system_prompt
-        self.context = [] # Maintain context if needed, or use 'context' param from Ollama
+        self.messages = []  # Chat history
+        
+        # Initialize OpenAI client pointing to vLLM server
+        self.client = OpenAI(
+            base_url=self.base_url,
+            api_key="EMPTY"  # vLLM doesn't require API key
+        )
 
     def set_language(self, language):
         if language == "tr":
@@ -18,26 +23,25 @@ class LLMEngine:
 
     def chat(self, user_text):
         """
-        Sends text to Ollama and yields streamed response chunks.
+        Sends text to vLLM and yields streamed response chunks.
         """
-        payload = {
-            "model": self.model_name,
-            "prompt": user_text,
-            "system": self.system_prompt,
-            "stream": True,
-            "context": self.context # pass previous context
-        }
+        messages = [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "user", "content": user_text}
+        ]
         
         try:
-            with requests.post(self.base_url, json=payload, stream=True) as response:
-                response.raise_for_status()
-                for line in response.iter_lines():
-                    if line:
-                        body = json.loads(line)
-                        if "response" in body:
-                            yield body["response"]
-                        if "done" in body and body["done"]:
-                            if "context" in body:
-                                self.context = body["context"]
-        except requests.exceptions.ConnectionError:
-            yield "Error: Could not connect to Ollama. Is it running?"
+            stream = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                stream=True,
+                max_tokens=256,
+                temperature=0.7
+            )
+            
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+                    
+        except Exception as e:
+            yield f"Error: Could not connect to vLLM. Is it running? ({e})"

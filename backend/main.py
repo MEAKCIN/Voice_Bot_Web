@@ -27,27 +27,11 @@ app = FastAPI()
 # --- Initialize Real Bot Components ---
 print("Initializing Real Bot Components...")
 # Force CPU for stability due to apparent cuDNN conflicts causing core dumps on this machine
-# Using CUDA for STT as requested
-stt = STTEngine(device="cuda", compute_type="float16")
+# Using CUDA for STT as requested -> Reverting to CPU to avoid OOM with double load
+stt = STTEngine(device="cpu", compute_type="float32")
 llm = LLMEngine()
 
-# Start XTTS Server (logic from bot.py)
-print("Starting XTTS Server...")
-# Reuse logic to find python and script
-# Assuming running from root
-server_script = "src/xtts_server.py"
-if not os.path.exists(server_script):
-    server_script = "../src/xtts_server.py" 
-
-python_exec = sys.executable
-# Simple subprocess start
-xtts_process = subprocess.Popen(
-    [python_exec, server_script],
-    stdout=sys.stdout,
-    stderr=sys.stderr
-)
-# Wait briefly for startup
-time.sleep(5) 
+# TTS using Edge-TTS (no separate server needed)
 tts = XTTSEngine()
 
 
@@ -162,6 +146,17 @@ async def chat(req: ChatRequest):
         f"Hello {req.username}, I am listening."
     ]
     return {"response": random.choice(responses)}
+
+# --- FastRTC Stream Mount ---
+# --- Native WebSocket Stream (Replaces FastRTC to fix bugs) ---
+from src.rtc_stream import websocket_endpoint
+from fastapi import WebSocket
+
+@app.websocket("/websocket/offer")
+async def ws_handler(websocket: WebSocket):
+    await websocket_endpoint(websocket)
+
+
 
 @app.post("/api/voice-chat")
 async def voice_chat(
