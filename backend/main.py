@@ -27,7 +27,8 @@ app = FastAPI()
 # --- Initialize Real Bot Components ---
 print("Initializing Real Bot Components...")
 # Force CPU for stability due to apparent cuDNN conflicts causing core dumps on this machine
-stt = STTEngine(device="cpu", compute_type="int8")
+# Using CUDA for STT as requested
+stt = STTEngine(device="cuda", compute_type="float16")
 llm = LLMEngine()
 
 # Start XTTS Server (logic from bot.py)
@@ -204,7 +205,8 @@ async def voice_chat(
         print(f"Bot: {bot_response}")
         
         # 4. TTS (Synthesize)
-        audio_bytes = tts.synthesize_audio(bot_response, lang=target_lang)
+        # Speed 1.5 for faster response, slightly lower temperature for stability/naturalness
+        audio_bytes = tts.synthesize_audio(bot_response, lang=target_lang, speed=1.5, temperature=0.7)
         
         audio_b64 = None
         if audio_bytes:

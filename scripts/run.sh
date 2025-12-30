@@ -9,7 +9,7 @@ if ! pgrep -x "ollama" > /dev/null; then
 fi
 
 # Check if model exists
-REQUIRED_MODEL="qwen2.5-omni"
+REQUIRED_MODEL="qwen2.5"
 if ! ollama list | grep -q "$REQUIRED_MODEL"; then
     echo "Pulling model $REQUIRED_MODEL..."
     ollama pull "$REQUIRED_MODEL"

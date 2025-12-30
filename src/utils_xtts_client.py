@@ -91,7 +91,7 @@ class XTTSEngine:
             if not self.is_stopped:
                 print(f"XTTS Error: {e}")
 
-    def synthesize_audio(self, text, lang="en"):
+    def synthesize_audio(self, text, lang="en", **kwargs):
         """Returns the audio bytes (wav) directly."""
         if not text:
             return None
@@ -113,7 +113,8 @@ class XTTSEngine:
             payload = {
                 "text": text,
                 "language": lang,
-                "speaker_wav": speaker_file
+                "speaker_wav": speaker_file,
+                **kwargs
             }
             
             with requests.post(f"{self.server_url}/synthesize", json=payload, stream=False) as response:

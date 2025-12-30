@@ -11,9 +11,9 @@ class LLMEngine:
 
     def set_language(self, language):
         if language == "tr":
-            self.system_prompt = "Sen yardımsever bir yapay zeka asistanısın. SADECE TÜRKÇE konuş. Cevapların kısa, doğal ve konuşma diline uygun olsun."
+            self.system_prompt = "Sen yardımsever bir yapay zeka asistanısın. SADECE TÜRKÇE konuş. Cevapların öz ama bilgilendirici olsun (2-3 cümle)."
         else:
-            self.system_prompt = "You are a helpful AI assistant. Speak ONLY ENGLISH. Keep answers short, natural, and conversational."
+            self.system_prompt = "You are a helpful AI assistant. Speak ONLY ENGLISH. Keep answers concise but informative (2-3 sentences)."
         print(f"LLM Language set to: {language}")
 
     def chat(self, user_text):

@@ -1,16 +1,48 @@
-# React + Vite
+# Voice Bot Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The user-facing interface for the Voice Bot ecosystem. Built with **React 18**, **Vite**, and **TailwindCSS**.
 
-Currently, two official plugins are available:
+## 🎨 Design System
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The frontend features a custom "Midnight" design system:
+-   **Theme**: Dark mode prioritized (`slate-950`).
+-   **Glassmorphism**: Heavy use of backdrop filters and semi-transparent borders.
+-   **Animations**: **Framer Motion** powers the smooth entry transitions and the reactive audio visualizer.
+-   **Icons**: **Lucide React** for consistent iconography.
 
-## React Compiler
+## 📁 Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── assets/           # Static images/media
+├── components/       # (Refactored) Reusable UI components
+├── VoiceBot.jsx      # Main application logic (VAD, Recording, Playback)
+├── App.jsx           # Routing and Layout wrapper
+├── index.css         # Global styles and Tailwind imports
+└── main.jsx          # Entry point
+```
 
-## Expanding the ESLint configuration
+## 🛠️ Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Setup
+```bash
+npm install
+```
+
+### Run Dev Server
+```bash
+npm run dev
+```
+Runs usually on `http://localhost:5173`.
+
+### Build for Production
+```bash
+npm run build
+```
+Output will be in `dist/`.
+
+## 🔗 Connection
+
+The frontend expects the backend API to be running at `http://localhost:8000`.
+-   **POST /api/voice-chat**: Main endpoint for audio blobs.
+-   **POST /api/chat**: Text-only fallback endpoint.

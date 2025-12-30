@@ -1,31 +1,33 @@
 # 🎙️ Voice Bot Web
 
-A modern, real-time Voice Bot application featuring a sleek React frontend and a powerful Python backend. This project integrates Speech-to-Text (STT), Large Language Models (LLM), and Text-to-Speech (TTS) to create a seamless conversational experience.
+A modern, real-time Voice Bot application featuring a sleek, glassmorphic React frontend and a powerful distributed Python backend. This project integrates Speech-to-Text (STT), Large Language Models (LLM), and Text-to-Speech (TTS) to create a seamless conversational experience with near-instant responses.
 
-![Voice Bot Interface](frontend/public/vite.svg) *Add a screenshot of your app here if possible*
+![Voice Bot Interface](frontend/public/vite.svg) *Add a screenshot of your app here*
 
 ## ✨ Features
 
-- **Real-time Voice Interaction**: Talk to the bot and get instant spoken responses.
-- **Multilingual Support**: Supports **English** and **Turkish** with automatic language detection and appropriate voice synthesis.
-- **Modern UI**: Built with **React** and **TailwindCSS**, featuring glassmorphism and smooth animations.
-- **Local AI Engines**:
-  - **LLM**: Uses **Ollama** (running Qwen 2.5) for intelligence.
-  - **STT**: Uses **Faster-Whisper** (`large-v3`) for accurate transcription.
-  - **TTS**: Uses **XTTS v2** for high-quality, cloned voice synthesis.
-- **Microservice Architecture**: Backend spawns a dedicated XTTS server for non-blocking audio generation.
-- **Docker Support**: Containerized backend for easy deployment.
+- **Real-time Voice Interaction**: Talk to the bot naturally. The system handles voice activity detection (VAD), interruption, and response generation.
+- **Premium UI/UX**: Validated "Midnight/Violet" dark mode design with:
+  -   Glassmorphism aesthetics
+  -   Dynamic mesh gradient backgrounds
+  -   Audio-reactive visualizers (Orb)
+-   **Multilingual Support**: Switch seamlessly between **English** and **Turkish**.
+-   **Distributed Local AI**:
+  -   **LLM**: Uses **Ollama** (Qwen 2.5) for intelligent, context-aware responses.
+  -   **STT**: Uses **Faster-Whisper** (`large-v3`) running on GPU (CUDA).
+  -   **TTS**: Uses **XTTS v2** for high-fidelity voice cloning, running on a dedicated microservice (Port 8002).
+-   **Robust Backend**: FastAPI-based architecture with separate services for logic and synthesis to prevent blocking.
 
 ## 🚀 Prerequisites
 
-Before running the project, ensure you have the following installed:
-
-- **Python 3.11+**
+- **Linux/Ubuntu** (Recommended) with NVIDIA Drivers
+- **Python 3.10+**
 - **Node.js 18+** & **npm**
-- **Ollama**: [Download Ollama](https://ollama.com/) and ensure it's running (`ollama serve`).
-- **GPU (Optional but Recommended)**: For faster local inference (CUDA support).
+- **Ollama**: [Download Ollama](https://ollama.com/) and ensure it is installed (`ollama serve`).
 
-## 🛠️ Installation
+## 🛠️ Quick Start
+
+We provide a robust startup script that handles environment setup, model checks, and process management.
 
 1.  **Clone the Repository**
     ```bash
@@ -33,84 +35,54 @@ Before running the project, ensure you have the following installed:
     cd Voice_Bot_Web
     ```
 
-2.  **Backend Setup**
+2.  **Setup Environment**
     ```bash
-    # Create and activate virtual environment
+    # Create virtual environment and install dependencies
     python3 -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-    # Install dependencies
+    source .venv/bin/activate
     pip install -r requirements.txt
-    ```
-
-3.  **Frontend Setup**
-    ```bash
+    
+    # Initialize Frontend
     cd frontend
     npm install
+    cd ..
     ```
 
-4.  **Model Setup**
-    - The application will automatically attempt to pull the required Ollama model (`qwen2.5:latest`) and download XTTS models on first run.
-
-## 🏃‍♂️ Usage
-
-### Running Locally
-
-1.  **Start Ollama** (if not running)
+3.  **Run the Application**
     ```bash
-    ollama serve
+    ./scripts/run.sh
     ```
+    This script will:
+    -   Check/Start Ollama.
+    -   Download required models (XTTS v2, Qwen 2.5) if missing.
+    -   Launch the Backend (main logic) on `http://localhost:8000`.
+    -   Launch the XTTS Service on `http://localhost:8002`.
+    -   Launch the Frontend on `http://localhost:5173`.
 
-2.  **Start the Backend**
-    ```bash
-    # From the project root
-    source .venv/bin/activate
-    python backend/main.py
-    ```
-    - The API will run on `http://localhost:8000`.
-    - The XTTS server will start on `http://localhost:8002`.
+4.  **Access the App**
+    Open your browser to `http://localhost:5173`.
 
-3.  **Start the Frontend**
-    ```bash
-    # In a new terminal, from /frontend
-    cd frontend
-    npm run dev
-    ```
-    - Open `http://localhost:5173` in your browser.
+## � Architecture
 
-### 🐳 Running with Docker
+-   **Frontend (5173)**: React + Vite + TailwindCSS. Handles audio recording, VAD visualization, and playback.
+-   **Backend API (8000)**: FastAPI. Orchestrates STT validation, LLM streaming, and chat history.
+-   **XTTS Service (8002)**: Dedicated FastAPI service. Loads the heavy XTTS model to generate audio without freezing the main thread.
 
-Build and run the backend container:
+## � Troubleshooting
 
+### Port Conflicts (Address already in use)
+If the application crashes or freezes, you may have "zombie" processes holding the ports. Run:
 ```bash
-# Build the image
-docker build -t voice-bot-backend .
-
-# Run the container (Ensure Ollama is running on host or accessible network)
-# Note: Accessing host Ollama from container requires network config
-docker run --network host voice-bot-backend
+# Kill processes on 8000 (Backend), 8002 (XTTS), and 5173 (Frontend)
+fuser -k -9 8000/tcp 8002/tcp 5173/tcp
 ```
+Then run `./scripts/run.sh` again.
 
-## 📂 Project Structure
-
-```
-Voice_Bot_Web/
-├── backend/            # FastAPI Main Server
-│   └── main.py        # Entry point
-├── frontend/           # React + Vite Application
-├── models/             # Downloaded AI Models (Ignored in Git)
-├── scripts/            # Helper scripts (run.sh, downloaders)
-├── src/                # Core AI Logic Modules
-│   ├── bot.py         # CLI Bot (Alternative entry)
-│   ├── utils_llm.py   # Large Language Model Handler
-│   ├── utils_stt.py   # Speech-to-Text Handler
-│   └── xtts_server.py # Dedicated TTS Server
-└── requirements.txt    # Python Dependencies
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request.
+### TTS Freezing
+If TTS generation hangs:
+1.  Check the terminal logs for `XTTS Service` errors.
+2.  Ensure you have enough VRAM (approx 4GB-6GB for full stack).
+3.  The service automatically logs detailed inference steps to helping debugging.
 
 ## 📄 License
 

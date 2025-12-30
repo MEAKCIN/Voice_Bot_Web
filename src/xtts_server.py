@@ -10,6 +10,10 @@ except ImportError:
 
 import os
 import torch
+import warnings
+# Suppress torchaudio warning about backend not being used by TorchCodec
+warnings.filterwarnings("ignore", message="The 'backend' parameter is not used by TorchCodec")
+
 import torch
 # Monkeypatch torch.load to handle PyTorch 2.6+ secure default
 # Coqui TTS relies on pickling custom objects
@@ -99,11 +103,14 @@ async def synthesize(req: SynthesisRequest):
     try:
         # XTTS Inference using model directly
         # We need to compute latents first
+        print("Computing speaker latents...")
         gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(
             audio_path=[req.speaker_wav]
         )
+        print("Speaker latents computed.")
         
         # Inference
+        print(f"Starting Inference (temp={req.temperature}, speed={req.speed})...")
         out = model.inference(
             req.text,
             req.language,
@@ -117,6 +124,7 @@ async def synthesize(req: SynthesisRequest):
             top_p=req.top_p,
             speed=req.speed
         )
+        print("Inference completed.")
         
         # Convert to int16 compatible with aplay/standard wav
         wav_norm = np.array(out['wav'])
