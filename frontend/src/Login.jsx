@@ -22,7 +22,7 @@ const Login = ({ setUser }) => {
             if (res.data.role === 'admin') {
                 navigate('/admin');
             } else {
-                navigate('/bot');
+                navigate('/portal');
             }
         } catch (err) {
             setError('Invalid credentials');
@@ -44,9 +44,12 @@ const Login = ({ setUser }) => {
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="glass-panel p-10 w-full max-w-[420px] z-10 flex flex-col items-center gap-8 shadow-2xl shadow-violet-900/20"
             >
-                <div className="text-center space-y-2">
-                    <h1 className="text-4xl font-bold gradient-text">Voice Bot</h1>
-                    <p className="text-slate-400 font-medium tracking-wide text-sm">SECURE ACCESS</p>
+                <div className="text-center space-y-4">
+                    <div className="w-20 h-20 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-4 transform rotate-3">
+                        <span className="text-3xl font-bold text-white">SNA</span>
+                    </div>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">SNA Consulting</h1>
+                    <p className="text-slate-400 font-medium tracking-wide text-xs uppercase">Secure AI Workspace Access</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="w-full flex flex-col gap-5">

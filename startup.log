@@ -4,47 +4,85 @@ Waiting for vLLM to start...
 Waiting for vLLM...
 `torch_dtype` is deprecated! Use `dtype` instead!
 Waiting for vLLM...
-WARNING 12-31 15:23:45 [cuda.py:93] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
 Waiting for vLLM...
+WARNING 12-31 16:44:46 [cuda.py:93] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
 Waiting for vLLM...
 Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
-Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.08it/s]
-Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.08it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.13it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.13it/s]
 
 Waiting for vLLM...
-WARNING 12-31 15:23:58 [config.py:1239] Default sampling parameters have been overridden by the model's Hugging Face generation config recommended from the model creator. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+WARNING 12-31 16:44:59 [config.py:1239] Default sampling parameters have been overridden by the model's Hugging Face generation config recommended from the model creator. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
 vLLM started!
 Starting Backend Server...
 Starting Frontend...
 Voice Bot Web App is running!
-vLLM PID: 19506
-Backend PID: 19831
-Frontend PID: 19832
+vLLM PID: 28988
+Backend PID: 29228
+Frontend PID: 29229
 
 > frontend@0.0.0 dev
 > vite
 
-3:24:00 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
 
-  VITE v7.3.0  ready in 143 ms
+  VITE v7.3.0  ready in 130 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
 Using cache found in /home/emin/.cache/torch/hub/snakers4_silero-vad_master
-INFO:     Started server process [19831]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-Initializing Real Bot Components...
-Loading Whisper model (large-v3-turbo) on cpu...
-Whisper model loaded.
-Initialized Edge-TTS Engine
-Initializing Manual RTC Engines...
-Loading Whisper model (large-v3-turbo) on cuda...
-Whisper model loaded.
-Initialized Edge-TTS Engine
-Loading Silero VAD model...
-VAD model loaded on cuda.
-Frontend dist not found at /home/emin/Documents/GitHub/Voice_Bot_Web/backend/../frontend/dist. Running in API-only mode.
-INFO:     127.0.0.1:59902 - "OPTIONS /api/login HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59902 - "POST /api/login HTTP/1.1" 200 OK
+INFO:WebSocket:WebSocket connected
+INFO:VoicePipeline:Pipeline language forced to: tr
+INFO:VoicePipeline:Pipeline language forced to: tr
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:03.328
+INFO:faster_whisper:VAD filter removed 00:00.656 of audio
+INFO:VoicePipeline:User (tr): Bana kuru fasulye nasıl yapılır onu anlat.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Kuru fasulyenin yemekten elde edileceği en basit yöntemleri şöyledir:
+
+1. Kuru fasulyenin iki katını çiğnenize. Bu, fasulyenin içine kalp gibi bir şey girecektir.
+
+2. Çiğneninin üzerine ıslanmış çikolata veya diğer sosu ekleyin. Bu, fasulyenin daha parlak ve güzel görünmesini sağlar.
+
+3. Çiğnenin üzerine biber tabağı veya başka bir sos ekleyin. Biber tabagaları, fasulyenin içeriğini daha parlak hale getirmek için idealdir.
+
+4. Yeni bir çiğnenin üzerine bu sosları doldurunuz. Sosları sıvıya bırakarak, çiğnenin içindeki fasulyenin içeriğini doldurunuz.
+
+5. Son olarak, çiğnenin üzerine biber tabagası veya diğer sosu ekleyip, çiğneniyle birlikte bir bardak içeceksiniz.
+
+Bu yöntemler genellikle kuru fasulyenin sade
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:03.584
+INFO:faster_whisper:VAD filter removed 00:00.848 of audio
+INFO:VoicePipeline:User (tr): Fasulye yapmaktan vazgeçtim.  Nohutu anlat.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Nohut, fasulyenin bir çeşitiyi ve sağlıklı bir yemeklerde temsil eder. Fasulyenin ana ekipmanı olan nöhüt, tuzlukta bulunur ve kaliteli karbonhidrat, mide sağlığı için önemli bir yere sahiptir. Nohut, kahve, su ve diğer içeceklerle de hazırlatable bir yemektür.
+
+Bakım: Nohut, tuzlukta olduğu için yüksek kanseri riskini korumaktadır. Ayrıca, kalp hastalıklarına veya diabetes ile ilişkili olabilir.
+
+Kullanım: Nohut, çay, keşifli bir sadece gibi bir yemekten yoksun bir kişinin istisnasıdır. Ancak, herkesin bu şekilde tüketmek gerekmez. Bu yüzden, nöhü almak yerine, fosforlu dumanlı ve yüksek kaloriye sahip ürünleri seçebilirsiniz.
+
+Yorum: Fasulyenin bazı etkinlikleri vardır, ancak nöhü tüketmek için uygun şartlar olması gerekmek
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:02.560
+INFO:faster_whisper:VAD filter removed 00:00.848 of audio
+INFO:VoicePipeline:User (tr): Başka ne yemek yapabilirim?
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Elbette, senin için en güzel ve sevdiğiniz yemeği aradım. Yeni bir kefte yemek, sadece 10 TL tutarında olabilir. Size daha fazla seçenek de verirseniz, senin tercihlerinize göre seçiyorum.
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:04.864
+INFO:faster_whisper:VAD filter removed 00:00.816 of audio
+INFO:VoicePipeline:User (tr): Nasıl 10 lira tutarını yapabilirsin?  Güncel veri kullanıyor musun?
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Tabii, size yardımcı olabilirim. Size nasıl bir talep yapmak istediğinizi belirtir misiniz?
+INFO:VoicePipeline:Pipeline language forced to: en
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:01.280
+INFO:faster_whisper:VAD filter removed 00:01.280 of audio
+INFO:VoicePipeline:User (en): 
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:03.072
+INFO:faster_whisper:VAD filter removed 00:00.816 of audio
+INFO:VoicePipeline:User (en): What should I cook today?
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Today, you might consider making a hearty vegetable stew with your favorite vegetables and some lean protein like chicken or beef for a delicious and nutritious meal.

@@ -33,8 +33,10 @@ while ! curl -s http://localhost:8001/health > /dev/null; do
 done
 echo "vLLM started!"
 
+# Start Backend Server
 echo "Starting Backend Server..."
-python backend/main.py &
+# Run the new modular app
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --log-level warning &
 BACKEND_PID=$!
 
 echo "Starting Frontend..."

@@ -1,0 +1,67 @@
+{
+    "total_tokens": 878,
+    "total_duration_seconds": 349.6,
+    "total_interactions": 12,
+    "sessions": [
+        {
+            "timestamp": "2025-12-31T16:39:11.229745",
+            "tokens": 167,
+            "duration": 65.92
+        },
+        {
+            "timestamp": "2025-12-31T16:39:25.375777",
+            "tokens": 41,
+            "duration": 13.120000000000001
+        },
+        {
+            "timestamp": "2025-12-31T16:42:38.235618",
+            "tokens": 79,
+            "duration": 28.88
+        },
+        {
+            "timestamp": "2025-12-31T16:42:51.917416",
+            "tokens": 53,
+            "duration": 20.400000000000002
+        },
+        {
+            "timestamp": "2025-12-31T16:43:00.111098",
+            "tokens": 13,
+            "duration": 3.12
+        },
+        {
+            "timestamp": "2025-12-31T16:43:08.370159",
+            "tokens": 14,
+            "duration": 4.48
+        },
+        {
+            "timestamp": "2025-12-31T16:43:51.544077",
+            "tokens": 131,
+            "duration": 61.76
+        },
+        {
+            "timestamp": "2025-12-31T16:46:20.696510",
+            "tokens": 136,
+            "duration": 57.52
+        },
+        {
+            "timestamp": "2025-12-31T16:46:32.800211",
+            "tokens": 135,
+            "duration": 58.800000000000004
+        },
+        {
+            "timestamp": "2025-12-31T16:46:39.780948",
+            "tokens": 41,
+            "duration": 15.040000000000001
+        },
+        {
+            "timestamp": "2025-12-31T16:46:52.334322",
+            "tokens": 27,
+            "duration": 7.28
+        },
+        {
+            "timestamp": "2025-12-31T16:47:08.231616",
+            "tokens": 41,
+            "duration": 13.280000000000001
+        }
+    ]
+}
