@@ -5,27 +5,27 @@ Waiting for vLLM...
 `torch_dtype` is deprecated! Use `dtype` instead!
 Waiting for vLLM...
 Waiting for vLLM...
-WARNING 12-31 16:44:46 [cuda.py:93] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
+WARNING 12-31 17:19:06 [cuda.py:93] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
 Waiting for vLLM...
 Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
-Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.13it/s]
-Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.13it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.06it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.06it/s]
 
 Waiting for vLLM...
-WARNING 12-31 16:44:59 [config.py:1239] Default sampling parameters have been overridden by the model's Hugging Face generation config recommended from the model creator. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+WARNING 12-31 17:19:21 [config.py:1239] Default sampling parameters have been overridden by the model's Hugging Face generation config recommended from the model creator. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
 vLLM started!
 Starting Backend Server...
 Starting Frontend...
 Voice Bot Web App is running!
-vLLM PID: 28988
-Backend PID: 29228
-Frontend PID: 29229
+vLLM PID: 33558
+Backend PID: 33942
+Frontend PID: 33943
 
 > frontend@0.0.0 dev
 > vite
 
 
-  VITE v7.3.0  ready in 130 ms
+  VITE v7.3.0  ready in 123 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
@@ -34,55 +34,102 @@ INFO:WebSocket:WebSocket connected
 INFO:VoicePipeline:Pipeline language forced to: tr
 INFO:VoicePipeline:Pipeline language forced to: tr
 INFO:WebSocket:Barge-in detected: Interrupting...
-INFO:faster_whisper:Processing audio with duration 00:03.328
+INFO:faster_whisper:Processing audio with duration 00:05.120
+INFO:faster_whisper:VAD filter removed 00:00.880 of audio
+INFO:VoicePipeline:User (tr): Merhaba, telefon numaram 553-963-0344.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Özür dilerim, ancak bu metin robot tarafından yazılmıştır ve gerçek bir telefon numarası değildir. Size yardımcı olabilmem için başka bir konu hakkında konuşmak ister misiniz?
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:05.376
+INFO:faster_whisper:VAD filter removed 00:00.752 of audio
+INFO:VoicePipeline:User (tr): Tekrar söylüyorum telefon numaram 553 963 0344.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Teşekkür ederim, size yardımcı olmaktan memnuniyet duyarım. Telefon numaranızı doğru ve bilgilendirici olarak paylaşır mısınız?
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:06.656
+INFO:faster_whisper:VAD filter removed 00:00.880 of audio
+INFO:VoicePipeline:User (tr): Başka bir numara söyleyeceğim şimdi sana.  0 546 685 35 02.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Tabii, size bu numarayı paylaşmak için teşekkür ederim. Size yardımcı olmaya çalışacağım.
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:02.304
+INFO:faster_whisper:VAD filter removed 00:00.912 of audio
+INFO:VoicePipeline:User (tr): Altyazı M.K.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: "Altyazı M.K." ifadesi, Türkiye'de popüler ve etkili bir dizi adet müzik grubu veya şarkıcıyla ilgileniyor. Bu grublar genellikle Türkçe dille seslendirmektedir ve Türkiye'deki pop müzik dünyasında önemli rol oynamaktadır.
+
+Bu grupların bazılarının notları:
+
+1. "M.K.": Bu isim, "Meslek Kızı" anlamına gelir ve bu grubun en çok bilinen ve başarılı olduğu gruplarından biridir.
+
+2. "Aşağıya Giden Zaman": Bu grubun en ünlü ve popüler şarkılarından biridir. 1980'lerde yazıldığı için, Türkiye'deki birçok kitle tarafından duyuları sıkıştırıyor.
+
+3. "Zeynep": "Zeynep" adlı şarkısı, 1985 yılında "M.K." grubuna dahildiği için popüler olmuştur. 
+
+4. "Tümü Üzgünüm": Bu şarkısı, 1980'lerde "M.K." grubu ile ortaya çıkan en başarılı şarkılarından biridir.
+
+Bu gruplar,
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:01.536
 INFO:faster_whisper:VAD filter removed 00:00.656 of audio
-INFO:VoicePipeline:User (tr): Bana kuru fasulye nasıl yapılır onu anlat.
+INFO:VoicePipeline:User (tr): Alo.
 INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:VoicePipeline:AI: Kuru fasulyenin yemekten elde edileceği en basit yöntemleri şöyledir:
-
-1. Kuru fasulyenin iki katını çiğnenize. Bu, fasulyenin içine kalp gibi bir şey girecektir.
-
-2. Çiğneninin üzerine ıslanmış çikolata veya diğer sosu ekleyin. Bu, fasulyenin daha parlak ve güzel görünmesini sağlar.
-
-3. Çiğnenin üzerine biber tabağı veya başka bir sos ekleyin. Biber tabagaları, fasulyenin içeriğini daha parlak hale getirmek için idealdir.
-
-4. Yeni bir çiğnenin üzerine bu sosları doldurunuz. Sosları sıvıya bırakarak, çiğnenin içindeki fasulyenin içeriğini doldurunuz.
-
-5. Son olarak, çiğnenin üzerine biber tabagası veya diğer sosu ekleyip, çiğneniyle birlikte bir bardak içeceksiniz.
-
-Bu yöntemler genellikle kuru fasulyenin sade
 INFO:WebSocket:Barge-in detected: Interrupting...
-INFO:faster_whisper:Processing audio with duration 00:03.584
-INFO:faster_whisper:VAD filter removed 00:00.848 of audio
-INFO:VoicePipeline:User (tr): Fasulye yapmaktan vazgeçtim.  Nohutu anlat.
+INFO:WebSocket:Previous response canceled.
+INFO:faster_whisper:Processing audio with duration 00:05.888
+INFO:faster_whisper:VAD filter removed 00:00.976 of audio
+INFO:VoicePipeline:User (tr): Erkan, Erkan, anahtarlar koltun altına kalıp beynara.
 INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:VoicePipeline:AI: Nohut, fasulyenin bir çeşitiyi ve sağlıklı bir yemeklerde temsil eder. Fasulyenin ana ekipmanı olan nöhüt, tuzlukta bulunur ve kaliteli karbonhidrat, mide sağlığı için önemli bir yere sahiptir. Nohut, kahve, su ve diğer içeceklerle de hazırlatable bir yemektür.
-
-Bakım: Nohut, tuzlukta olduğu için yüksek kanseri riskini korumaktadır. Ayrıca, kalp hastalıklarına veya diabetes ile ilişkili olabilir.
-
-Kullanım: Nohut, çay, keşifli bir sadece gibi bir yemekten yoksun bir kişinin istisnasıdır. Ancak, herkesin bu şekilde tüketmek gerekmez. Bu yüzden, nöhü almak yerine, fosforlu dumanlı ve yüksek kaloriye sahip ürünleri seçebilirsiniz.
-
-Yorum: Fasulyenin bazı etkinlikleri vardır, ancak nöhü tüketmek için uygun şartlar olması gerekmek
+INFO:VoicePipeline:AI: Anahtarlar, erken kullanırsanız, anlayışınızı artırır ve buna bağlı olarak düşüncenizi daha doğru hale getirirsiniz.
 INFO:WebSocket:Barge-in detected: Interrupting...
-INFO:faster_whisper:Processing audio with duration 00:02.560
-INFO:faster_whisper:VAD filter removed 00:00.848 of audio
-INFO:VoicePipeline:User (tr): Başka ne yemek yapabilirim?
+INFO:faster_whisper:Processing audio with duration 00:09.472
+INFO:faster_whisper:VAD filter removed 00:02.064 of audio
+INFO:VoicePipeline:User (tr): İyi bence iyi dur tekrar yapacağım Arkan anahtarlar koltuğun altında kalıp beni ara
 INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:VoicePipeline:AI: Elbette, senin için en güzel ve sevdiğiniz yemeği aradım. Yeni bir kefte yemek, sadece 10 TL tutarında olabilir. Size daha fazla seçenek de verirseniz, senin tercihlerinize göre seçiyorum.
-INFO:WebSocket:Barge-in detected: Interrupting...
-INFO:faster_whisper:Processing audio with duration 00:04.864
-INFO:faster_whisper:VAD filter removed 00:00.816 of audio
-INFO:VoicePipeline:User (tr): Nasıl 10 lira tutarını yapabilirsin?  Güncel veri kullanıyor musun?
-INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:VoicePipeline:AI: Tabii, size yardımcı olabilirim. Size nasıl bir talep yapmak istediğinizi belirtir misiniz?
-INFO:VoicePipeline:Pipeline language forced to: en
+INFO:VoicePipeline:AI: Arka planın altında kalıp, anında anladığını biliyorum ve her zaman yardım edeceğim için teşekkür ederim. Başarılar dileriz!
 INFO:WebSocket:Barge-in detected: Interrupting...
 INFO:faster_whisper:Processing audio with duration 00:01.280
-INFO:faster_whisper:VAD filter removed 00:01.280 of audio
-INFO:VoicePipeline:User (en): 
-INFO:WebSocket:Barge-in detected: Interrupting...
-INFO:faster_whisper:Processing audio with duration 00:03.072
-INFO:faster_whisper:VAD filter removed 00:00.816 of audio
-INFO:VoicePipeline:User (en): What should I cook today?
+INFO:faster_whisper:VAD filter removed 00:00.624 of audio
+INFO:VoicePipeline:User (tr): abone ol
 INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
-INFO:VoicePipeline:AI: Today, you might consider making a hearty vegetable stew with your favorite vegetables and some lean protein like chicken or beef for a delicious and nutritious meal.
+INFO:VoicePipeline:AI: Abone olmak için aşağıdaki adımları izleyebilirsiniz:
+
+1. Bir web sitesine veya mobil uygulamasına erişin.
+2. Abone olma islemini arayın.
+3. İlgili formu doldurun.
+4. Formdan abone olma işlemi tamamlayın.
+
+İşte nasıl yapılır. Abone olmak isterseniz, lütfen belirttiğiniz siteye gidip abone olma islemini takip edin.
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:01.536
+INFO:faster_whisper:VAD filter removed 00:00.752 of audio
+INFO:VoicePipeline:User (tr): Düş.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Bana yardımcı olmak için size nasıl yardımcı olabilirim?
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:01.792
+INFO:faster_whisper:VAD filter removed 00:00.848 of audio
+INFO:VoicePipeline:User (tr): Dur.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: İşte, senin için.
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:04.352
+INFO:faster_whisper:VAD filter removed 00:00.720 of audio
+INFO:VoicePipeline:User (tr): Benim ismim M.E.A.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: Merhaba, M.E.A! Ben bir yapay zekayım ve Türkçe konuşabilirim. Size nasıl yardımcı olabilirim?
+INFO:WebSocket:Barge-in detected: Interrupting...
+INFO:faster_whisper:Processing audio with duration 00:05.376
+INFO:faster_whisper:VAD filter removed 00:00.784 of audio
+INFO:VoicePipeline:User (tr): Soyismin A, K, Ç, İ, N.
+INFO:httpx:HTTP Request: POST http://localhost:8001/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:VoicePipeline:AI: İşte listedeki harflerin Türkçe karşılıkları:
+
+A = A
+K = K
+Ç = Ç
+I = İ
+N = N
+
+Bu şekilde listedeki her harfünün Türkçe karşılığı sağlandı.
+INFO:WebSocket:Barge-in detected: Interrupting...

@@ -1,7 +1,7 @@
 {
-    "total_tokens": 878,
-    "total_duration_seconds": 349.6,
-    "total_interactions": 12,
+    "total_tokens": 1975,
+    "total_duration_seconds": 738.0,
+    "total_interactions": 39,
     "sessions": [
         {
             "timestamp": "2025-12-31T16:39:11.229745",
@@ -62,6 +62,141 @@
             "timestamp": "2025-12-31T16:47:08.231616",
             "tokens": 41,
             "duration": 13.280000000000001
+        },
+        {
+            "timestamp": "2025-12-31T16:54:29.384924",
+            "tokens": 44,
+            "duration": 12.0
+        },
+        {
+            "timestamp": "2025-12-31T16:54:37.772635",
+            "tokens": 10,
+            "duration": 4.64
+        },
+        {
+            "timestamp": "2025-12-31T16:55:23.819787",
+            "tokens": 113,
+            "duration": 32.480000000000004
+        },
+        {
+            "timestamp": "2025-12-31T16:55:53.464101",
+            "tokens": 57,
+            "duration": 16.16
+        },
+        {
+            "timestamp": "2025-12-31T16:56:45.359696",
+            "tokens": 41,
+            "duration": 10.8
+        },
+        {
+            "timestamp": "2025-12-31T16:57:02.290651",
+            "tokens": 54,
+            "duration": 15.120000000000001
+        },
+        {
+            "timestamp": "2025-12-31T16:57:14.816115",
+            "tokens": 7,
+            "duration": 3.2
+        },
+        {
+            "timestamp": "2025-12-31T16:57:23.029258",
+            "tokens": 42,
+            "duration": 15.6
+        },
+        {
+            "timestamp": "2025-12-31T16:57:27.272155",
+            "tokens": 9,
+            "duration": 3.6
+        },
+        {
+            "timestamp": "2025-12-31T16:57:37.431650",
+            "tokens": 23,
+            "duration": 5.68
+        },
+        {
+            "timestamp": "2025-12-31T16:58:13.611264",
+            "tokens": 16,
+            "duration": 5.36
+        },
+        {
+            "timestamp": "2025-12-31T16:58:34.291331",
+            "tokens": 132,
+            "duration": 55.44
+        },
+        {
+            "timestamp": "2025-12-31T16:58:43.536920",
+            "tokens": 37,
+            "duration": 13.76
+        },
+        {
+            "timestamp": "2025-12-31T17:16:09.124088",
+            "tokens": 16,
+            "duration": 6.0
+        },
+        {
+            "timestamp": "2025-12-31T17:16:19.116938",
+            "tokens": 42,
+            "duration": 21.36
+        },
+        {
+            "timestamp": "2025-12-31T17:16:24.918298",
+            "tokens": 19,
+            "duration": 6.16
+        },
+        {
+            "timestamp": "2025-12-31T17:19:51.548503",
+            "tokens": 37,
+            "duration": 14.0
+        },
+        {
+            "timestamp": "2025-12-31T17:20:04.820482",
+            "tokens": 28,
+            "duration": 10.16
+        },
+        {
+            "timestamp": "2025-12-31T17:20:20.684014",
+            "tokens": 29,
+            "duration": 7.12
+        },
+        {
+            "timestamp": "2025-12-31T17:20:32.570774",
+            "tokens": 136,
+            "duration": 60.96
+        },
+        {
+            "timestamp": "2025-12-31T17:21:05.097325",
+            "tokens": 27,
+            "duration": 9.28
+        },
+        {
+            "timestamp": "2025-12-31T17:21:25.024250",
+            "tokens": 39,
+            "duration": 9.92
+        },
+        {
+            "timestamp": "2025-12-31T17:21:34.581855",
+            "tokens": 59,
+            "duration": 25.2
+        },
+        {
+            "timestamp": "2025-12-31T17:21:39.358101",
+            "tokens": 11,
+            "duration": 4.48
+        },
+        {
+            "timestamp": "2025-12-31T17:21:43.072742",
+            "tokens": 5,
+            "duration": 1.36
+        },
+        {
+            "timestamp": "2025-12-31T17:21:51.720056",
+            "tokens": 20,
+            "duration": 7.5200000000000005
+        },
+        {
+            "timestamp": "2025-12-31T17:22:00.982213",
+            "tokens": 44,
+            "duration": 11.040000000000001
         }
     ]
 }
