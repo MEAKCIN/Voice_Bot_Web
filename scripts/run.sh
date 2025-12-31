@@ -2,21 +2,36 @@
 source .venv/bin/activate
 
 # Dynamically find site-packages for GPU libs
+# Kill running processes on ports
+echo "Cleaning up ports 8000, 8001, 5173..."
+fuser -k 8000/tcp 8001/tcp 5173/tcp > /dev/null 2>&1
+sleep 2
+
 SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SITE_PACKAGES/nvidia/cudnn/lib:$SITE_PACKAGES/nvidia/cublas/lib
+
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 # Start vLLM Server
 VLLM_MODEL="Qwen/Qwen2.5-1.5B-Instruct"
 echo "Starting vLLM Server with model $VLLM_MODEL..."
+export VLLM_LOGGING_LEVEL=WARNING
 VLLM_USE_V1=0 CUDA_VISIBLE_DEVICES=0 python -m vllm.entrypoints.openai.api_server \
     --model "$VLLM_MODEL" \
     --port 8001 \
-    --gpu-memory-utilization 0.3 \
-    --max-model-len 1024 \
-    --dtype float16 \
+    --uvicorn-log-level warning \
+    --gpu-memory-utilization 0.6 \
+    --max-model-len 2048 \
+    --dtype auto \
     --enforce-eager &
 VLLM_PID=$!
-sleep 15  # Wait for vLLM to start
+# Wait for vLLM to start
+echo "Waiting for vLLM to start..."
+while ! curl -s http://localhost:8001/health > /dev/null; do
+    echo "Waiting for vLLM..."
+    sleep 5
+done
+echo "vLLM started!"
 
 echo "Starting Backend Server..."
 python backend/main.py &

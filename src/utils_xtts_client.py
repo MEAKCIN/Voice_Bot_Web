@@ -11,31 +11,22 @@ class EdgeTTSEngine:
     def __init__(self):
         # Voice options - Edge TTS has excellent Turkish and English voices
         self.voices = {
-            "tr": "tr-TR-AhmetNeural",   # Turkish male voice
-            "en": "en-US-GuyNeural"       # English male voice
+            "tr": "tr-TR-EmelNeural",       # Turkish Female (Clearer)
+            "en": "en-US-EmmaMultilingualNeural" # English Female (Copilot/Conversational)
         }
         print("Initialized Edge-TTS Engine")
     
-    def synthesize_audio(self, text: str, lang: str = "en", speed: float = 1.0) -> bytes:
+    async def synthesize_audio_async(self, text: str, lang: str = "en", speed: float = 1.0, temperature: float = 0.7) -> bytes:
         """
-        Synthesizes text to audio using edge-tts.
-        Returns WAV bytes.
+        Async synthesis implementation (Public API).
         """
-        voice = self.voices.get(lang, self.voices["en"])
-        
-        # Convert speed to rate string (e.g., +10%, -20%)
-        rate_percent = int((speed - 1.0) * 100)
-        rate_str = f"+{rate_percent}%" if rate_percent >= 0 else f"{rate_percent}%"
-        
-        # Run async synthesis
-        return asyncio.get_event_loop().run_until_complete(
-            self._synthesize_async(text, voice, rate_str)
-        )
-    
-    async def _synthesize_async(self, text: str, voice: str, rate: str) -> bytes:
-        """Async synthesis implementation."""
         try:
-            communicate = edge_tts.Communicate(text, voice, rate=rate)
+            voice = self.voices.get(lang, self.voices["en"])
+            # Convert speed to rate string (e.g., +10%, -20%)
+            rate_percent = int((speed - 1.0) * 100)
+            rate_str = f"+{rate_percent}%" if rate_percent >= 0 else f"{rate_percent}%"
+
+            communicate = edge_tts.Communicate(text, voice, rate=rate_str)
             
             # Collect audio chunks
             audio_chunks = []
@@ -44,17 +35,30 @@ class EdgeTTSEngine:
                     audio_chunks.append(chunk["data"])
             
             if audio_chunks:
-                # Combine all chunks into MP3, then convert to WAV for browser compatibility
+                # Combine all chunks into MP3
                 mp3_data = b"".join(audio_chunks)
-                
-                # Edge-TTS returns MP3, but browser decodeAudioData prefers WAV
-                # For simplicity, returning MP3 which modern browsers can decode
                 return mp3_data
             return None
             
         except Exception as e:
             print(f"Edge-TTS Error: {e}")
             return None
+
+    def synthesize_audio(self, text: str, lang: str = "en", speed: float = 1.0, temperature: float = 0.7) -> bytes:
+        """
+        Synthesizes text to audio using edge-tts.
+        Returns WAV bytes.
+        """
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                raise RuntimeError("Cannot call synchronous synthesize_audio from an async loop. Use 'await synthesize_audio_async()' instead.")
+            return loop.run_until_complete(
+                self.synthesize_audio_async(text, lang, speed, temperature)
+            )
+        except RuntimeError:
+             # Fallback for when there is no loop
+             return asyncio.run(self.synthesize_audio_async(text, lang, speed, temperature))
 
 
 # Compatibility alias for existing code

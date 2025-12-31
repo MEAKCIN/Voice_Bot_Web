@@ -20,8 +20,8 @@ logger = logging.getLogger("RTC_Stream_Manual")
 
 # Initialize Engines
 print("Initializing Manual RTC Engines...")
-# FORCE CPU for STT - Use 'base' model for faster response (large-v3 is too slow)
-stt = STTEngine(model_size="base", device="cpu", compute_type="float32") 
+# FORCE GPU for STT - Use 'large-v3-turbo' (float16 for GPU)
+stt = STTEngine(model_size="large-v3-turbo", device="cuda", compute_type="float16") 
 llm = LLMEngine()
 tts = XTTSEngine()
 vad = VADDetector()
@@ -41,14 +41,38 @@ async def websocket_endpoint(websocket: WebSocket):
     SILENCE_THRESHOLD_MS = 1000 # 1s
     SAMPLE_RATE = 24000 # Frontend sends 24k
     
+    current_language = None # "en" or "tr" or None (auto)
+    
     # VAD buffer (16kHz) - Silero requires exactly 512 samples per call
     vad_audio_buffer = np.array([], dtype=np.float32)
     VAD_CHUNK_SIZE = 512  # Required by Silero for 16kHz
     
     try:
         while True:
-            # Receive bytes (int16 PCM)
-            data = await websocket.receive_bytes()
+            # Receive message (text or bytes)
+            message = await websocket.receive()
+            
+            if "text" in message:
+                try:
+                    import json
+                    data = json.loads(message["text"])
+                    if data.get("type") == "config":
+                        lang = data.get("lang")
+                        if lang in ["en", "tr"]:
+                            current_language = lang
+                            logger.info(f"Language forced to: {current_language}")
+                            # Pre-set LLM system prompt immediately
+                            llm.set_language(current_language)
+                    continue
+                except Exception as e:
+                    logger.error(f"Config Error: {e}")
+                    continue
+            
+            if "bytes" not in message:
+                continue
+                
+            # Process Audio Bytes
+            data = message["bytes"]
             
             # Convert to numpy float32 for processing
             audio_int16 = np.frombuffer(data, dtype=np.int16)
@@ -85,7 +109,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
             if is_speech:
                 if not in_speech_phase:
-                     logger.info("Speech START detected.")
+                     # logger.info("Speech START detected.")
+                     # Send Interrupt Signal
+                     await websocket.send_text('{"type": "interrupt"}')
                 in_speech_phase = True
                 silence_counter = 0
                 speech_buffer.append(audio_float32)
@@ -96,20 +122,20 @@ async def websocket_endpoint(websocket: WebSocket):
                     silence_counter += chunk_duration_ms
                     
                     # Log silence progress
-                    if silence_counter % 500 < chunk_duration_ms * 2: # Approx log every 500ms
-                        logger.info(f"Silence: {silence_counter:.0f}ms / {SILENCE_THRESHOLD_MS}ms")
+                    # if silence_counter % 500 < chunk_duration_ms * 2: # Approx log every 500ms
+                    #     logger.info(f"Silence: {silence_counter:.0f}ms / {SILENCE_THRESHOLD_MS}ms")
                     
                     speech_buffer.append(audio_float32)
                     
                     if silence_counter > SILENCE_THRESHOLD_MS:
                         # --- Turn End Detected ---
-                        logger.info("Turn End Detected. Processing...")
+                        # logger.info("Turn End Detected. Processing...")
                         
                         full_audio = np.concatenate(speech_buffer)
                         
                         # Use an async processing task to not block receive?
                         # For now, blocking is safer to avoid overlapping turns.
-                        await process_turn(full_audio, websocket)
+                        await process_turn(full_audio, websocket, current_language)
                         
                         # Reset
                         speech_buffer = []
@@ -125,21 +151,30 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         logger.error(f"WebSocket Error: {e}")
 
-async def process_turn(audio_float32, websocket: WebSocket):
+async def process_turn(audio_float32, websocket: WebSocket, forced_language=None):
     # Debug: Save audio
     try:
         debug_wav = (audio_float32 * 32767).astype(np.int16)
         scipy.io.wavfile.write("debug_input.wav", 24000, debug_wav)
-        logger.info("Saved debug_input.wav")
+        # logger.info("Saved debug_input.wav")
     except Exception as e:
         logger.error(f"Failed to save debug wav: {e}")
 
     # 1. STT
     try:
         # Transcribe
-        logger.info("Transcribing...")
-        user_text, detected_lang = stt.transcribe(audio_float32)
+        # logger.info("Transcribing...")
+        user_text, detected_lang = stt.transcribe(audio_float32, language=forced_language)
+        
+        # If forced, override detected_lang for logic downstream
+        if forced_language:
+            detected_lang = forced_language
+            
         logger.info(f"User ({detected_lang}): {user_text}")
+        
+        if user_text.strip():
+             # Send transcription to frontend
+             await websocket.send_text(f'{{"type": "user_transcription", "text": "{user_text.replace(chr(34), chr(39))}"}}')
         
         if not user_text.strip():
             return
@@ -159,21 +194,23 @@ async def process_turn(audio_float32, websocket: WebSocket):
             if token in [".", "!", "?", "\n"]:
                 if current_sentence.strip():
                     await synthesize_and_send(current_sentence, target_lang, websocket)
+                    # Send text chunk to frontend (optional, or send full sentence)
+                    await websocket.send_text(f'{{"type": "ai_response", "text": "{current_sentence.replace(chr(34), chr(39))}"}}')
                     current_sentence = ""
         
         # Final
         if current_sentence.strip():
             await synthesize_and_send(current_sentence, target_lang, websocket)
+            await websocket.send_text(f'{{"type": "ai_response", "text": "{current_sentence.replace(chr(34), chr(39))}"}}')
             
     except Exception as e:
         logger.error(f"Processing Error: {e}")
 
 async def synthesize_and_send(text, lang, websocket: WebSocket):
-    logger.info(f"Synthesizing: {text[:30]}...")
+    # logger.info(f"Synthesizing: {text[:30]}...")
     try:
-        # XTTS synthesis (blocking call, might slow down loop. Use ThreadPool?)
-        # For simplicity, keeping it sync but fast.
-        wav_bytes = tts.synthesize_audio(text, lang=lang, speed=1.0)
+        # XTTS synthesis (async)
+        wav_bytes = await tts.synthesize_audio_async(text, lang=lang, speed=1.2)
         if wav_bytes:
              # Send raw WAV/PCM bytes back
              # Frontend (VoiceBot.jsx) expects array buffer (which calls decodeAudioData)

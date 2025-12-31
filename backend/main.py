@@ -200,8 +200,8 @@ async def voice_chat(
         print(f"Bot: {bot_response}")
         
         # 4. TTS (Synthesize)
-        # Speed 1.5 for faster response, slightly lower temperature for stability/naturalness
-        audio_bytes = tts.synthesize_audio(bot_response, lang=target_lang, speed=1.5, temperature=0.7)
+        # Speed 1.2 for better clarity while remaining fast
+        audio_bytes = await tts.synthesize_audio_async(bot_response, lang=target_lang, speed=1.2, temperature=0.7)
         
         audio_b64 = None
         if audio_bytes:

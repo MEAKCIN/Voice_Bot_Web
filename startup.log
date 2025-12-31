@@ -1,0 +1,50 @@
+Cleaning up ports 8000, 8001, 5173...
+Starting vLLM Server with model Qwen/Qwen2.5-1.5B-Instruct...
+Waiting for vLLM to start...
+Waiting for vLLM...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Waiting for vLLM...
+WARNING 12-31 15:23:45 [cuda.py:93] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
+Waiting for vLLM...
+Waiting for vLLM...
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.08it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  3.08it/s]
+
+Waiting for vLLM...
+WARNING 12-31 15:23:58 [config.py:1239] Default sampling parameters have been overridden by the model's Hugging Face generation config recommended from the model creator. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+vLLM started!
+Starting Backend Server...
+Starting Frontend...
+Voice Bot Web App is running!
+vLLM PID: 19506
+Backend PID: 19831
+Frontend PID: 19832
+
+> frontend@0.0.0 dev
+> vite
+
+3:24:00 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
+
+  VITE v7.3.0  ready in 143 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+Using cache found in /home/emin/.cache/torch/hub/snakers4_silero-vad_master
+INFO:     Started server process [19831]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Initializing Real Bot Components...
+Loading Whisper model (large-v3-turbo) on cpu...
+Whisper model loaded.
+Initialized Edge-TTS Engine
+Initializing Manual RTC Engines...
+Loading Whisper model (large-v3-turbo) on cuda...
+Whisper model loaded.
+Initialized Edge-TTS Engine
+Loading Silero VAD model...
+VAD model loaded on cuda.
+Frontend dist not found at /home/emin/Documents/GitHub/Voice_Bot_Web/backend/../frontend/dist. Running in API-only mode.
+INFO:     127.0.0.1:59902 - "OPTIONS /api/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59902 - "POST /api/login HTTP/1.1" 200 OK
